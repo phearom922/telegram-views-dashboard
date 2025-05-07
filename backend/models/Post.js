@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
-const postSchema = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
   message_id: Number,
-  views: Number,
   date: Date,
-  channel_username: String
+  views: Number,
+  url: String,
 });
 
-module.exports = mongoose.model('Post', postSchema);
-
+module.exports = mongoose.model('Post', PostSchema);

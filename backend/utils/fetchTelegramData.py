@@ -1,36 +1,37 @@
 # fetchTelegramData.py
-from telethon.sync import TelegramClient
-import requests
-from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
 import os
-import dotenv
+import datetime
+import pymongo
+from telethon.sync import TelegramClient
+from telethon.sessions import StringSession
 
-dotenv.load_dotenv()
+load_dotenv()
 
 api_id = int(os.getenv('TELEGRAM_API_ID'))
 api_hash = os.getenv('TELEGRAM_API_HASH')
 channel_username = os.getenv('TELEGRAM_CHANNEL')  # เช่น 'SuccessmoreCambodiaOfficial'
 backend_api_url = os.getenv('BACKEND_API_URL')  # เช่น http://localhost:5000/api/posts/import
+mongo_uri = os.getenv("MONGO_URI")
+session_str = os.getenv("SESSION_STRING")
 
-client = TelegramClient('telegram_session', api_id, api_hash)
+client = TelegramClient(StringSession(session_str), api_id, api_hash)
+client.start()
+db = pymongo.MongoClient(mongo_uri).telegram.posts
 
-def fetch_and_send_posts():
-    with client:
-        posts = []
-        one_month_ago = datetime.now(timezone.utc) - timedelta(days=30)
+one_month_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=30)
 
-        for message in client.iter_messages(channel_username, limit=500):
-            if message.date < one_month_ago:
-                break
-            if message.views:
-                posts.append({
-                    'message_id': message.id,
-                    'views': message.views,
-                    'date': message.date.isoformat()
-                })
-
-        res = requests.post(backend_api_url, json={'posts': posts})
-        print("Data sent to backend:", res.status_code, res.text)
-
-if __name__ == "__main__":
-    fetch_and_send_posts()
+for message in client.iter_messages(channel_username, limit=1000):
+    if message.date < one_month_ago:
+        break
+    if message.views is not None:
+        db.update_one(
+            {"message_id": message.id},
+            {"$set": {
+                "message_id": message.id,
+                "views": message.views,
+                "date": message.date,
+                "url": f"https://t.me/{channel_username.strip('@')}/{message.id}"
+            }},
+            upsert=True
+        )
