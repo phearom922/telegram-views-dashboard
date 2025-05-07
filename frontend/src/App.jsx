@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import TelegramWidget from './TelegramWidget';
+import { LuExternalLink } from "react-icons/lu";
+
 
 function App() {
   const [monthlyViews, setMonthlyViews] = useState([]);
@@ -37,15 +40,33 @@ function App() {
     fetchData();
   }, []);
 
+  //===================
+  // useEffect(() => {
+  //   const script = document.createElement('script');
+  //   script.src = 'https://telegram.org/js/telegram-widget.js?22';
+  //   script.setAttribute('data-telegram-post', 'SuccessmoreCambodiaOfficial/3250');
+  //   script.setAttribute('data-width', '30%');
+  //   script.async = true;
+  //   document.body.appendChild(script);
+
+  //   // return () => {
+  //   //   // document.body.removeChild(script); // Cleanup
+  //   // };
+  // }, []);
+
+
+
+
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-100 p-6 justify-center items-center">
       <h1 className="text-2xl font-bold mb-6">📊 Telegram Monthly Views Dashboard</h1>
-      <button onClick={handleUpdate} disabled={loading} className="mb-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow">
-        {loading ? 'Updating...' : '🔄 Update Now'}
+      <button onClick={handleUpdate} disabled={loading} className="mb-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded shadow">
+        {loading ? 'Updating...' : 'Update Now'}
       </button>
       <div className='max-w-7xl'>
         <div className="bg-white p-4 min-w-7xl rounded-2xl shadow mb-6">
-          <h2 className="text-xl font-semibold mb-2">ยอดวิวรายเดือน</h2>
+          <h2 className="text-xl font-semibold mb-2">Monthly views</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyViews}>
               <XAxis dataKey="_id" />
@@ -59,12 +80,14 @@ function App() {
         </div>
 
         <div className="bg-white p-4 min-w-7xl rounded-2xl shadow">
-          <h2 className="text-xl font-semibold mb-2">📌 โพสต์ยอดนิยม</h2>
-          <ul className="divide-y">
+          <h2 className="text-xl font-semibold mb-2">Popular Post</h2>
+          <ul className="divide-y ">
             {topPosts.map((post, i) => (
-              <li key={i} className="py-2">
-                📄 Post ID: {post.message_id} — 👁️ {post.views} views
+              <li key={i} className="py-2 flex gap-4 items-center">
+                📄 Post ID: {post.message_id} — 👁️ {post.views} views <LuExternalLink  />
+                <TelegramWidget postId={post.message_id} />
               </li>
+
             ))}
           </ul>
         </div>
