@@ -10,53 +10,43 @@ function App() {
   const [topPosts, setTopPosts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [monthlyRes, topRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/posts/monthly'),
-        axios.get('http://localhost:5000/api/posts/top')
-      ]);
-      setMonthlyViews(monthlyRes.data);
-      setTopPosts(topRes.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-    setLoading(false);
-  };
+ // frontend/src/App.jsx
+ const fetchData = async () => {
+  setLoading(true);
+  try {
+    const [monthlyRes, topRes] = await Promise.all([
+      axios.get('http://localhost:5000/api/posts/monthly'),
+      axios.get('http://localhost:5000/api/posts/top')
+    ]);
+    console.log('Monthly Views:', monthlyRes.data); // เพิ่ม log
+    console.log('Top Posts:', topRes.data); // เพิ่ม log
+    setMonthlyViews(monthlyRes.data);
+    setTopPosts(topRes.data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    alert('Failed to fetch data. Please try again later.');
+  }
+  setLoading(false);
+};
 
-  const handleUpdate = async () => {
-    setLoading(true);
-    try {
-      await axios.get('http://localhost:5000/api/posts/fetch-now');
-      await fetchData();
-    } catch (error) {
-      console.error('Error updating data:', error);
-    }
-    setLoading(false);
-  };
+// frontend/src/App.jsx
+const handleUpdate = async () => {
+  setLoading(true);
+  try {
+    await axios.get('http://localhost:5000/api/posts/fetch-now');
+    await fetchData(); // ดึงข้อมูลใหม่ทันที
+  } catch (error) {
+    console.error('Error updating data:', error);
+  }
+  setLoading(false);
+};
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  //===================
-  // useEffect(() => {
-  //   const script = document.createElement('script');
-  //   script.src = 'https://telegram.org/js/telegram-widget.js?22';
-  //   script.setAttribute('data-telegram-post', 'SuccessmoreCambodiaOfficial/3250');
-  //   script.setAttribute('data-width', '30%');
-  //   script.async = true;
-  //   document.body.appendChild(script);
 
-  //   // return () => {
-  //   //   // document.body.removeChild(script); // Cleanup
-  //   // };
-  // }, []);
-
-
-
-
+console.log(topPosts)
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-100 p-6 justify-center items-center">
@@ -84,10 +74,8 @@ function App() {
           <ul className="divide-y ">
             {topPosts.map((post, i) => (
               <li key={i} className="py-2 flex gap-4 items-center">
-                📄 Post ID: {post.message_id} — 👁️ {post.views} views <LuExternalLink  />
-                <TelegramWidget postId={post.message_id} />
+                📄 Post ID: {post.message_id} — 👁️ {post.views} views <a target='_blank' href={post.url}><LuExternalLink /></a>
               </li>
-
             ))}
           </ul>
         </div>
