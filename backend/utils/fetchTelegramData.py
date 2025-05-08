@@ -17,34 +17,36 @@ session_str = os.getenv("SESSION_STRING")
 # ตรวจสอบค่า environment variables
 if not all([api_id, api_hash, channel_username, mongo_uri, session_str]):
     raise ValueError("Missing environment variables in .env")
+
 client = TelegramClient(StringSession(session_str), api_id, api_hash)
-
-
-
-# backend/utils/fetchTelegramData.py
 try:
+    print("Starting Telegram client...")
     client.start()
     print("Client started successfully")
 
     print("Connecting to MongoDB...")
-    mongo_client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+    mongo_client = pymongo.MongoClient(mongo_uri)
     print("MongoDB server info:", mongo_client.server_info())
-    db = mongo_client.telegramdb.posts
-    print("Using database 'telegram', collection 'posts'")
+    db = mongo_client.telegramdb.posts  # ใช้ database ที่ถูกต้อง (telegramdb)
+    print("Using database 'telegramdb', collection 'posts'")
 
-    one_month_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=30)
-    print(f"Fetching messages from {channel_username} since {one_month_ago}")
+    # ลบข้อมูลเก่าทั้งหมดก่อนดึงข้อมูลใหม่
+    db.delete_many({})
+    print("Cleared old data")
+
+    three_months_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=90)  # 3 เดือนย้อนหลัง
+    print(f"Fetching messages from {channel_username} since {three_months_ago}")
 
     message_count = 0
     for message in client.iter_messages(channel_username, limit=1000):
         print(f"Found message {message.id} dated {message.date}")
-        if message.date < one_month_ago:
-            print("Reached one month ago, stopping")
+        if message.date < three_months_ago:
+            print("Reached three months ago, stopping")
             break
         if message.views is not None:
             message_count += 1
             print(f"Processing message {message.id} with {message.views} views")
-            result = db.insert_one({  # เปลี่ยนจาก update_one เป็น insert_one
+            result = db.insert_one({
                 "message_id": message.id,
                 "views": message.views,
                 "date": message.date,

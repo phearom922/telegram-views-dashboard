@@ -5,7 +5,15 @@ const path = require('path'); // เพิ่มบรรทัดนี้
 // backend/controllers/postController.js
 exports.getMonthlyStats = async (req, res) => {
   try {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3); // คำนวณวันที่ย้อนหลัง 3 เดือน
+
     const stats = await Post.aggregate([
+      {
+        $match: {
+          date: { $gte: threeMonthsAgo } // กรองข้อมูลที่มี date >= 3 เดือนย้อนหลัง
+        }
+      },
       {
         $group: {
           _id: { $dateToString: { format: '%Y-%m', date: '$date' } },
@@ -25,8 +33,15 @@ exports.getMonthlyStats = async (req, res) => {
 
 exports.getTopPosts = async (req, res) => {
   try {
-    const posts = await Post.find().sort({ views: -1 }).limit(5);
-    console.log('Top Posts:', posts); // เพิ่ม log เพื่อ debug
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    const posts = await Post.find({
+      date: { $gte: threeMonthsAgo } // กรองโพสต์ 3 เดือนย้อนหลัง
+    })
+      .sort({ views: -1 })
+      .limit(5);
+    console.log('Top Posts:', posts);
     res.json(posts);
   } catch (error) {
     console.error('Error in getTopPosts:', error);
