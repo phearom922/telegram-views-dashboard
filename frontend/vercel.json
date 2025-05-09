@@ -1,8 +1,21 @@
 {
-    "routes":[
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
         {
-            "src":"/[^.]+",
-            "dest":"/"
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://telegramdashboardphearom.vercel.app"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
         }
-    ]
+      ]
+    }
+  ]
 }
