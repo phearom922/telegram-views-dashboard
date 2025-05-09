@@ -7,6 +7,8 @@ import { AiFillPicture } from "react-icons/ai";
 import { FaRegEye, FaMoon, FaSun } from "react-icons/fa";
 import scmLogo from "../public/scm-logo.jpg"
 
+
+
 function App() {
   const [monthlyViews, setMonthlyViews] = useState([]);
   const [topPosts, setTopPosts] = useState([]);
@@ -36,8 +38,8 @@ function App() {
     setLoading(true);
     try {
       const [monthlyRes, topRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/posts/monthly'),
-        axios.get('http://localhost:5000/api/posts/top')
+        axios.get(import.meta.env.VITE_API_KEY + '/posts/monthly'),
+        axios.get(import.meta.env.VITE_API_KEY + '/posts/top')
       ]);
       console.log('Monthly Views:', monthlyRes.data);
       console.log('Top Posts:', topRes.data);
@@ -53,7 +55,7 @@ function App() {
   const handleUpdate = async () => {
     setLoading(true);
     try {
-      await axios.get('http://localhost:5000/api/posts/fetch-now');
+      await axios.get(import.meta.env.VITE_API_KEY + '/posts/fetch-now');
       await fetchData();
     } catch (error) {
       console.error('Error updating data:', error);
