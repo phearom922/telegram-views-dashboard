@@ -103,7 +103,7 @@ function App() {
 
 
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 space-y-6 sm:gap-0 lg:gap-6 lg:space-y-0 mb-6">
             <div className={`p-6 rounded-2xl shadow-sm col-span-2 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <h2 className="text-xl font-semibold mb-2">Monthly Trends</h2>
               <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Views and posts over time</p>
@@ -203,7 +203,7 @@ function App() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 space-y-6 lg:gap-6 lg:space-y-0 mb-6">
             <div className={`p-6 rounded-2xl shadow-sm col-span-2 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <h2 className="text-xl font-semibold mb-2">Top Posts</h2>
               <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ranked by view count</p>
@@ -255,7 +255,7 @@ function App() {
               <h2 className="text-xl font-semibold mb-2">Successmore Cambodia Official</h2>
               <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Telegram Chanel</p>
               <div>
-                <img className='rounded-2xl' src={scmLogo} alt="Successmore Cambodia" />
+                <img className='rounded-[10px]' src={scmLogo} alt="Successmore Cambodia" />
               </div>
             </div>
           </div>
