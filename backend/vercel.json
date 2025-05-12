@@ -1,19 +1,27 @@
 {
-    "version": 2,
-    "name": "backend",
-    "builds": [
-      {
-        "src": "server.js",
-        "use": "@vercel/node"
+  "version": 2,
+  "name": "backend",
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/utils/fetchTelegramData.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
       }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "server.js",
-        "headers": {
-          "Access-Control-Allow-Origin": "*"
-        }
-      }
-    ]
-  }
+    },
+    {
+      "src": "/api/posts/fetch-now",
+      "dest": "backend/server.js"
+    }
+  ]
+}
