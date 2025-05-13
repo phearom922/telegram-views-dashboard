@@ -1,0 +1,4 @@
+flask
+telethon
+pymongo
+python-dotenv
