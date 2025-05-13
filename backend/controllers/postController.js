@@ -23,7 +23,7 @@ exports.getMonthlyStats = async (req, res) => {
       },
       { $sort: { _id: 1 } }
     ]);
-    console.log('Monthly Stats:', stats);
+    // console.log('Monthly Stats:', stats);
     res.json(stats);
   } catch (error) {
     console.error('Error in getMonthlyStats:', error);
@@ -41,7 +41,7 @@ exports.getTopPosts = async (req, res) => {
     })
       .sort({ views: -1 })
       .limit(5);
-    console.log('Top Posts:', posts);
+    // console.log('Top Posts:', posts);
     res.json(posts);
   } catch (error) {
     console.error('Error in getTopPosts:', error);
