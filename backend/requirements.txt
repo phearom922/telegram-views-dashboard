@@ -1,4 +1,4 @@
-flask
-telethon
-pymongo
 python-dotenv
+telethon
+flask
+pymongo

@@ -1,4 +1,3 @@
-# backend/utils/fetchTelegramData.py
 from dotenv import load_dotenv
 import os
 import datetime
