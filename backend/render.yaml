@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: telegram-views-backend
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python backend/utils/fetchTelegramData.py"  # หรือใช้ server.py ถ้ามี
+    envVars:
+      - key: TELEGRAM_API_ID
+        value: [your-api-id]
+      - key: TELEGRAM_API_HASH
+        value: [your-api-hash]
+      - key: TELEGRAM_CHANNEL
+        value: [your-channel]
+      - key: MONGO_URI
+        value: [your-mongo-uri]
+      - key: SESSION_STRING
+        value: [your-session-string]
