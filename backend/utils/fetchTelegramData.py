@@ -8,6 +8,7 @@ from telethon.sessions import StringSession
 
 load_dotenv()
 
+# ดึง environment variables
 api_id = int(os.getenv('TELEGRAM_API_ID'))
 api_hash = os.getenv('TELEGRAM_API_HASH')
 channel_username = os.getenv('TELEGRAM_CHANNEL')
@@ -27,14 +28,15 @@ try:
     print("Connecting to MongoDB...")
     mongo_client = pymongo.MongoClient(mongo_uri)
     print("MongoDB server info:", mongo_client.server_info())
-    db = mongo_client.telegramdb.posts  # ใช้ database ที่ถูกต้อง (telegramdb)
+    db = mongo_client.telegramdb.posts  # ใช้ database 'telegramdb', collection 'posts'
     print("Using database 'telegramdb', collection 'posts'")
 
-    # ลบข้อมูลเก่าทั้งหมดก่อนดึงข้อมูลใหม่
+    # ลบข้อมูลเก่าทั้งหมดก่อนดึงข้อมูลใหม่ (ทุกครั้งที่รัน)
     db.delete_many({})
     print("Cleared old data")
 
-    three_months_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=90)  # 3 เดือนย้อนหลัง
+    # คำนวณวันที่ 3 เดือนย้อนหลัง
+    three_months_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=90)
     print(f"Fetching messages from {channel_username} since {three_months_ago}")
 
     message_count = 0
@@ -50,7 +52,7 @@ try:
                 "message_id": message.id,
                 "views": message.views,
                 "date": message.date,
-                "url": f"{channel_username.strip('@')}/{message.id}"
+                "url": f"https://t.me/{channel_username.strip('@')}/{message.id}"  # แก้ URL ให้ถูกต้อง
             })
             print(f"Insert result: {result.inserted_id}")
     print(f"Processed {message_count} messages")

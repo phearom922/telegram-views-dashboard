@@ -52,16 +52,17 @@ function App() {
     setLoading(false);
   };
 
-  const handleUpdate = async () => {
-    setLoading(true);
-    try {
-      await axios.get(import.meta.env.VITE_API_KEY + '/posts/fetch-now');
-      await fetchData();
-    } catch (error) {
-      console.error('Error updating data:', error);
-    }
-    setLoading(false);
-  };
+// frontend/src/App.jsx
+const handleUpdate = async () => {
+  setLoading(true);
+  try {
+    await axios.get(import.meta.env.VITE_API_KEY + '/posts/fetch-now'); // เปลี่ยนเป็น URL ของ Render
+    await fetchData(); // อัพเดทข้อมูลใน frontend
+  } catch (error) {
+    console.error('Error updating data:', error);
+  }
+  setLoading(false);
+};
 
   useEffect(() => {
     fetchData();
