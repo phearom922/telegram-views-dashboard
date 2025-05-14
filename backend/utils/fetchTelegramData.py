@@ -41,12 +41,10 @@ try:
         print("No existing data in MongoDB")
 
     three_months_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=90)
-    print(f"Fetching messages from {channel_username} since {three_months_ago}")
 
     message_count = 0
     messages_to_insert = []  # เก็บข้อมูลก่อนบันทึกเป็น batch
     for message in client.iter_messages(channel_username, limit=100):
-        print(f"Found message {message.id} dated {message.date}")
         
         # หยุดถ้าเจอข้อความที่เก่ากว่า 3 เดือน
         if message.date < three_months_ago:
@@ -55,12 +53,10 @@ try:
         
         # ข้ามถ้า message_id นี้มีอยู่ใน MongoDB แล้ว
         if latest_message_id and message.id <= latest_message_id:
-            print(f"Message {message.id} already exists, stopping")
             break
 
         if message.views is not None:
             message_count += 1
-            print(f"Processing message {message.id} with {message.views} views")
             messages_to_insert.append({
                 "message_id": message.id,
                 "views": message.views,
