@@ -64,7 +64,7 @@ const handleUpdate = async () => {
 
     setLoading(true);
     try {
-      await axios.get('https://your-render-backend-url/api/posts/fetch-now');
+      await axios.get(import.meta.env.VITE_API_KEY + '/posts/fetch-now');
       setLastFetchTime(now);
       await fetchData(); // อัพเดทข้อมูลใน frontend
     } catch (error) {
