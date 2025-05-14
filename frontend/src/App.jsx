@@ -13,6 +13,7 @@ function App() {
   const [monthlyViews, setMonthlyViews] = useState([]);
   const [topPosts, setTopPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     // ตรวจสอบค่าใน localStorage เมื่อเริ่มต้นแอป
     const savedMode = localStorage.getItem('darkMode');
@@ -52,17 +53,25 @@ function App() {
     setLoading(false);
   };
 
-// frontend/src/App.jsx
+
 const handleUpdate = async () => {
-  setLoading(true);
-  try {
-    await axios.get(import.meta.env.VITE_API_KEY + '/posts/fetch-now'); // เปลี่ยนเป็น URL ของ Render
-    await fetchData(); // อัพเดทข้อมูลใน frontend
-  } catch (error) {
-    console.error('Error updating data:', error);
-  }
-  setLoading(false);
-};
+    const now = new Date();
+    // ตรวจสอบว่า fetch ล่าสุดเมื่อกี่วินาทีที่แล้ว (เช่น ไม่ให้ fetch ใหม่ถ้าผ่านไปแค่ 5 นาที)
+    if (lastFetchTime && (now - lastFetchTime) < 5 * 60 * 1000) {
+      console.log("Too soon to fetch again. Please wait.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.get('https://your-render-backend-url/api/posts/fetch-now');
+      setLastFetchTime(now);
+      await fetchData(); // อัพเดทข้อมูลใน frontend
+    } catch (error) {
+      console.error('Error updating data:', error);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchData();
