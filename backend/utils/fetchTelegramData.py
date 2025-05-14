@@ -71,11 +71,8 @@ try:
     # บันทึกข้อมูลเป็น batch
     if messages_to_insert:
         result = db.insert_many(messages_to_insert)
-        print(f"Inserted {len(result.inserted_ids)} new messages")
     else:
         print("No new messages to insert")
-
-    print(f"Processed {message_count} messages")
 except Exception as e:
     print(f"Error: {str(e)}")
 finally:
