@@ -61,7 +61,7 @@ try:
                 "message_id": message.id,
                 "views": message.views,
                 "date": message.date,
-                "url": f"https://t.me/{channel_username.strip('@')}/{message.id}"
+                "url": f"{channel_username.strip('@')}/{message.id}"
             })
 
     # บันทึกข้อมูลเป็น batch
