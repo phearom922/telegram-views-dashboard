@@ -66,7 +66,7 @@ function App() {
     const lastFetchMinute = lastFetchTime.getMinutes();
 
     if (lastFetchDate < today || (lastFetchDate === today && (lastFetchHour > 23 || (lastFetchHour === 23 && lastFetchMinute > 59)))) {
-      return "ข้อมูลจะอัพเดทใหม่ในเวลา 23:59 คืนนี้";
+      return "The data will be updated at 23:59 tonight.";
     }
     return null;
   };
