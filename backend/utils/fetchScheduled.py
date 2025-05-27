@@ -1,10 +1,10 @@
-# backend/utils/fetchTelegramData.py
-from dotenv import load_dotenv # type: ignore
+# backend/utils/fetchScheduled.py
+from dotenv import load_dotenv
 import os
 import datetime
-import pymongo # type: ignore
-from telethon.sync import TelegramClient # type: ignore
-from telethon.sessions import StringSession # type: ignore
+import pymongo 
+from telethon.sync import TelegramClient 
+from telethon.sessions import StringSession 
 
 load_dotenv()
 
@@ -18,7 +18,6 @@ if not all([api_id, api_hash, channel_username, mongo_uri, session_str]):
     raise ValueError("Missing environment variables in .env")
 
 client = TelegramClient(StringSession(session_str), api_id, api_hash)
-
 try:
     print("Starting Telegram client...")
     client.start()
@@ -26,35 +25,23 @@ try:
 
     print("Connecting to MongoDB...")
     mongo_client = pymongo.MongoClient(mongo_uri)
-    print("MongoDB server info:", mongo_client.server_info())
     db = mongo_client.telegramdb.posts
     print("Using database 'telegramdb', collection 'posts'")
 
-    # ตรวจสอบ message_id ล่าสุดใน MongoDB
-    latest_message = db.find().sort("message_id", -1).limit(1)
-    latest_message_id = None
-    if db.count_documents({}) > 0:
-        latest_message = list(latest_message)[0]
-        latest_message_id = latest_message["message_id"]
-        print(f"Latest message_id in MongoDB: {latest_message_id}")
-    else:
-        print("No existing data in MongoDB")
+    # ลบข้อมูลเก่าทั้งหมด
+    db.delete_many({})
+    print("Cleared old data")
 
     three_months_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=90)
+    print(f"Fetching messages from {channel_username} since {three_months_ago}")
 
     message_count = 0
-    messages_to_insert = []  # เก็บข้อมูลก่อนบันทึกเป็น batch
+    messages_to_insert = []
     for message in client.iter_messages(channel_username, limit=100):
-        
-        # หยุดถ้าเจอข้อความที่เก่ากว่า 3 เดือน
+        print(f"Found message {message.id} dated {message.date}")
         if message.date < three_months_ago:
             print("Reached three months ago, stopping")
             break
-        
-        # ข้ามถ้า message_id นี้มีอยู่ใน MongoDB แล้ว
-        if latest_message_id and message.id <= latest_message_id:
-            break
-
         if message.views is not None:
             message_count += 1
             messages_to_insert.append({
@@ -64,14 +51,18 @@ try:
                 "url": f"{channel_username.strip('@')}/{message.id}"
             })
 
-    # บันทึกข้อมูลเป็น batch
     if messages_to_insert:
-        result = db.insert_many(messages_to_insert)
-    else:
-        print("No new messages to insert")
+        db.insert_many(messages_to_insert)
+        print(f"Inserted {len(messages_to_insert)} messages")
+    print(f"Processed {message_count} messages")
+
+    # บันทึกเวลาที่ดึงข้อมูลล่าสุด
+    with open("last_fetch.txt", "w") as f:
+        f.write(datetime.datetime.now(datetime.timezone.utc).isoformat())
+    print("Updated last fetch time")
+
 except Exception as e:
     print(f"Error: {str(e)}")
 finally:
-    print("Disconnecting client...")
     client.disconnect()
     print("Client disconnected")

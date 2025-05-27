@@ -16,8 +16,8 @@
 
 
 
-from telethon.sync import TelegramClient
-from telethon.sessions import StringSession
+from telethon.sync import TelegramClient # type: ignore
+from telethon.sessions import StringSession # type: ignore
 
 api_id = int(input("Enter your API ID: "))
 api_hash = input("Enter your API Hash:")

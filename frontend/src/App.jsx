@@ -5,9 +5,7 @@ import TelegramWidget from './TelegramWidget';
 import { LuExternalLink } from "react-icons/lu";
 import { AiFillPicture } from "react-icons/ai";
 import { FaRegEye, FaMoon, FaSun } from "react-icons/fa";
-import scmLogo from "../public/scm-logo.jpg"
-
-
+import scmLogo from "../public/scm-logo.jpg";
 
 function App() {
   const [monthlyViews, setMonthlyViews] = useState([]);
@@ -15,15 +13,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
-    // ตรวจสอบค่าใน localStorage เมื่อเริ่มต้นแอป
     const savedMode = localStorage.getItem('darkMode');
     return savedMode ? JSON.parse(savedMode) : false;
   });
 
-  // บันทึกสถานะ Dark Mode ลงใน localStorage เมื่อมีการเปลี่ยนแปลง
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    // เพิ่ม/ลบ class 'dark' จาก document element
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -53,29 +48,56 @@ function App() {
     setLoading(false);
   };
 
+  const fetchLastFetchTime = async () => {
+    try {
+      const response = await axios.get(import.meta.env.VITE_API_KEY + '/last-fetch-time');
+      setLastFetchTime(new Date(response.data.lastFetch));
+    } catch (error) {
+      console.error('Error fetching last fetch time:', error);
+    }
+  };
 
-const handleUpdate = async () => {
+  const checkForNewData = () => {
+    if (!lastFetchTime) return "Loading last fetch time...";
     const now = new Date();
-    // ตรวจสอบว่า fetch ล่าสุดเมื่อกี่วินาทีที่แล้ว (เช่น ไม่ให้ fetch ใหม่ถ้าผ่านไปแค่ 5 นาที)
+    const lastFetchDate = lastFetchTime.toISOString().split('T')[0];
+    const today = now.toISOString().split('T')[0];
+    const lastFetchHour = lastFetchTime.getHours();
+    const lastFetchMinute = lastFetchTime.getMinutes();
+
+    if (lastFetchDate < today || (lastFetchDate === today && (lastFetchHour > 23 || (lastFetchHour === 23 && lastFetchMinute > 59)))) {
+      return "ข้อมูลจะอัพเดทใหม่ในเวลา 23:59 คืนนี้";
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([fetchData(), fetchLastFetchTime()]);
+      setLoading(false);
+    };
+    init();
+  }, []);
+
+  const handleUpdate = async () => {
+    const now = new Date();
     if (lastFetchTime && (now - lastFetchTime) < 5 * 60 * 1000) {
-      console.log("Too soon to fetch again. Please wait.");
+      alert("Too soon to fetch again. Please wait 5 minutes.");
       return;
     }
-
     setLoading(true);
     try {
       await axios.get(import.meta.env.VITE_API_KEY + '/posts/fetch-now');
       setLastFetchTime(now);
-      await fetchData(); // อัพเดทข้อมูลใน frontend
+      await fetchData();
+      alert("Data updated successfully!");
     } catch (error) {
       console.error('Error updating data:', error);
+      alert('Failed to update data. Please try again later.');
     }
     setLoading(false);
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <>
@@ -98,6 +120,7 @@ const handleUpdate = async () => {
                 onClick={handleUpdate}
                 disabled={loading}
                 className={`px-5 py-2.5 ${darkMode ? 'bg-teal-600 hover:bg-teal-700' : 'bg-teal-500 hover:bg-teal-600'} text-white font-medium rounded cursor-pointer shadow-md transition-all flex items-center gap-2`}
+                title="Manual update is optional since data auto-updates at 23:59"
               >
                 {loading ? (
                   <>
@@ -111,9 +134,6 @@ const handleUpdate = async () => {
               </button>
             </div>
           </div>
-
-
-
 
           <div className="grid grid-cols-1 lg:grid-cols-3 space-y-6 sm:gap-0 lg:gap-6 lg:space-y-0 mb-6">
             <div className={`p-6 rounded-2xl shadow-sm col-span-2 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
@@ -265,12 +285,18 @@ const handleUpdate = async () => {
 
             <div className={`p-6 rounded-2xl shadow-sm ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <h2 className="text-xl font-semibold mb-2">Successmore Cambodia Official</h2>
-              <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Telegram Chanel</p>
+              <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Telegram Channel</p>
               <div>
                 <img className='rounded-[10px]' src={scmLogo} alt="Successmore Cambodia" />
               </div>
             </div>
           </div>
+
+          {checkForNewData() && (
+            <div className={`p-4 mt-4 rounded-lg ${darkMode ? 'bg-red-900 bg-opacity-50 text-red-200' : 'bg-red-50 text-red-600'}`}>
+              <p>{checkForNewData()}</p>
+            </div>
+          )}
         </div>
       </div>
     </>
